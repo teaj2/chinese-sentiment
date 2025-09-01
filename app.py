@@ -1,20 +1,24 @@
 import gradio as gr
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 
-model_path = "chinese_sentiment_model"
+# 加载模型
+model_path = "./chinese_sentiment_model"
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 model = AutoModelForSequenceClassification.from_pretrained(model_path)
-classifier = pipeline("text-classification", model=model, tokenizer=tokenizer, return_all_scores=False)
+classifier = pipeline("text-classification", model=model, tokenizer=tokenizer)
+
+id2label = {0: "negative", 1: "neutral", 2: "positive"}
 
 def predict(text):
-    return classifier(text)[0]['label']
+    res = classifier(text)
+    label_idx = int(res[0]['label'].split("_")[-1])
+    return {"label": id2label[label_idx], "score": float(res[0]['score'])}
 
-demo = gr.Interface(
+iface = gr.Interface(
     fn=predict,
-    inputs="text",
-    outputs="text",
-    title="中文情感分类 Demo",
-    description="输入中文文本，预测情感标签（正向 / 中性 / 负向）"
+    inputs=gr.Textbox(label="输入中文文本"),
+    outputs=gr.Label(num_top_classes=1)
 )
 
-demo.launch()
+iface.launch()
+
