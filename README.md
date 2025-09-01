@@ -1,3 +1,14 @@
+---
+title: 中文情感分类系统
+emoji: 🎭
+colorFrom: blue
+colorTo: purple
+sdk: gradio
+sdk_version: 4.0.0
+app_file: app.py
+pinned: false
+---
+
 # 🎭 中文情感分类系统
 
 基于BERT的中文情感分析模型，展示完整的深度学习模型微调、部署和应用流程。
@@ -120,4 +131,5 @@ python app.py
 
 ---
 
-
+**开发者**：电子信息研究生  
+**项目目标**：大语言模型岗位技能展示
