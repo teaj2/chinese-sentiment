@@ -1,5 +1,4 @@
 transformers
 torch
 gradio
-datasets
 
