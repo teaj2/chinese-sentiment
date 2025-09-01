@@ -16,15 +16,42 @@ class ChineseSentimentClassifier:
     def load_model(self):
         """加载模型"""
         try:
-            # 从本地文件夹加载模型
+            # 方法1：尝试正常加载
             self.tokenizer = AutoTokenizer.from_pretrained('./chinese_sentiment_model')
             self.model = AutoModelForSequenceClassification.from_pretrained('./chinese_sentiment_model')
             self.model.to(self.device)
             self.model.eval()
             self.loaded = True
             return "✅ 模型加载成功！"
-        except Exception as e:
-            return f"❌ 模型加载失败：{str(e)}"
+            
+        except Exception as e1:
+            try:
+                # 方法2：尝试使用safe_tensors加载
+                self.tokenizer = AutoTokenizer.from_pretrained('./chinese_sentiment_model')
+                self.model = AutoModelForSequenceClassification.from_pretrained(
+                    './chinese_sentiment_model',
+                    use_safetensors=False  # 强制不使用safetensors
+                )
+                self.model.to(self.device)
+                self.model.eval()
+                self.loaded = True
+                return "✅ 模型加载成功（兼容模式）！"
+                
+            except Exception as e2:
+                try:
+                    # 方法3：尝试从预训练模型重新初始化
+                    self.tokenizer = AutoTokenizer.from_pretrained('hfl/chinese-roberta-wwm-ext')
+                    self.model = AutoModelForSequenceClassification.from_pretrained(
+                        'hfl/chinese-roberta-wwm-ext',
+                        num_labels=3
+                    )
+                    self.model.to(self.device)
+                    self.model.eval()
+                    self.loaded = True
+                    return "⚠️ 使用预训练模型（未微调版本），建议重新上传训练好的模型文件"
+                    
+                except Exception as e3:
+                    return f"❌ 所有加载方法都失败：\n1. {str(e1)}\n2. {str(e2)}\n3. {str(e3)}"
     
     def predict_sentiment(self, text):
         """情感预测"""
